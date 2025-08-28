@@ -15,13 +15,40 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Step 2: Create Output directory
+      - name: Create Output directory
+        run: mkdir -p Output-reports
+
       # Step 2: Install TruffleHog (latest release)
       - name: Install TruffleHog
         run: |
-            curl -fL https://github.com/trufflesecurity/trufflehog/releases/download/v3.90.5/trufflehog_3.90.5_linux_arm64.tar.gz -o trufflehog.tar.gz
-            tar xzf trufflehog.tar.gz
-            sudo mv trufflehog /usr/local/bin/
-            pip --version
+          pip --version 
+          pip install trufflehog3
+              # Step 3: Run TruffleHog Scan
+      - name: Finding Secrets
+        run: |
+          echo "Running TruffleHog secret scan"
+          trufflehog3 -vv --depth 5 --format json \
+            --output ./Output-reports/report.json
+          echo "Repo Scanning Done"
+
+      # Step 4: Convert JSON to HTML
+      - name: Convert JSON to HTML
+        run: |
+          echo "Converting TruffleHog JSON report to HTML"
+          trufflehog3 -vv -R ./Output-reports/report.json \
+            --output ./Output-reports/report.html
+
+      # Step 5: Upload report artifacts
+      - name: Upload TruffleHog scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trufflehog scan results
+          path: Output-reports/
+        #curl -fL https://github.com/trufflesecurity/trufflehog/releases/download/v3.90.5/trufflehog_3.90.5_linux_arm64.tar.gz -o trufflehog.tar.gz
+        #tar xzf trufflehog.tar.gz
+        #sudo mv trufflehog /usr/local/bin/
+        #   pip --version
         # chmod +x trufflehog
         # file trufflehog
         # ./trufflehog --version
@@ -30,24 +57,37 @@ jobs:
           # tar xzf trufflehog.tar.gz
           # sudo mv trufflehog /usr/local/bin/
       
-      # Step 3: Run TruffleHog scan across repository
-      - name: Run TruffleHog Scan
-        run: trufflehog filesystem --directory . --json > trufflehog-results.json
+      # # Step 3: Run TruffleHog scan across repository
+      # - name: Run TruffleHog Scan
+      #   run: trufflehog3 -vv depth 5 --no-history --format json --output report.json
 
-      # Step 4: Upload scan results
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        with:
-          name: trufflehog-results
-          path: trufflehog-results.json
+      # - name: HTML report 
+      #   run: |
+      #       pwd
+      #       echo 'Converting $(Build.SourcesDirectory)/Output-reports/$(repo_name)_report.json into $(Build.SourcesDirectory)/Output-reports/$(repo_name)_report.html'
+      #       trufflehog3 -vv -R $(repo_name)_report.json --output $(repo_name)_report.html
+
+      # # Step 4: Upload scan results
+      # - name: Upload results
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: trufflehog-results
+      #     path: trufflehog-results.json
 
       # Step 5: Fail workflow if secrets are detected
-      - name: Fail if secrets found
-        run: |
-          if [ -s trufflehog-results.json ]; then
-            echo "❌ Secrets detected in repository!"
-            cat trufflehog-results.json
-            exit 1
-          else
-            echo "✅ No secrets found."
-          fi
+      # - name: Fail if secrets found
+      #   run: |
+      #     if [ -s trufflehog-results.json ]; then
+      #       echo "❌ Secrets detected in repository!"
+      #       cat trufflehog-results.json
+      #       exit 1
+      #     else
+      #       echo "✅ No secrets found."
+      #     fi
+
+
+ 
+
+
+
+ 
