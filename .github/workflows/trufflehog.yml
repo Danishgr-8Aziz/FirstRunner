@@ -29,7 +29,7 @@ jobs:
 
       - name: Install TruffleHog v3
         run: |
-          curl -L https://github.com/trufflesecurity/trufflehog/releases/latest/download/trufflehog_$(uname -s)_$(uname -m).tar.gz -o trufflehog.tar.gz
+          curl -sL https://github.com/trufflesecurity/trufflehog/releases/latest/download/trufflehog_linux_amd64.tar.gz -o trufflehog.tar.gz
           tar xzf trufflehog.tar.gz
           sudo mv trufflehog /usr/local/bin/
 
