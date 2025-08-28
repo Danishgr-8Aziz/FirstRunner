@@ -15,15 +15,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Install TruffleHog
-      - name: Install TruffleHog
-        run: |
-          pip install trufflehog
+      # # Step 2: Install TruffleHog
+      # - name: Install TruffleHog
+      #   run: |
+      #     pip install trufflehog
 
-      # Step 3: Run TruffleHog on the repository
-      - name: Run secret scan
+      # # Step 3: Run TruffleHog on the repository
+      # - name: Run secret scan
+      #   run: |
+      #     trufflehog filesystem --directory . --json > trufflehog-results.json
+  
+      - uses: actions/checkout@v4
+
+      - name: Install TruffleHog v3
         run: |
-          trufflehog filesystem --directory . --json > trufflehog-results.json
+          curl -L https://github.com/trufflesecurity/trufflehog/releases/latest/download/trufflehog_$(uname -s)_$(uname -m).tar.gz -o trufflehog.tar.gz
+          tar xzf trufflehog.tar.gz
+          sudo mv trufflehog /usr/local/bin/
+
+      - name: Run TruffleHog Scan
+        run: trufflehog filesystem --directory . --json > trufflehog-results.json
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trufflehog-results
+          path: trufflehog-results.json
+
       - name: Fail if secrets found
         run: |
           if [ -s trufflehog-results.json ]; then
