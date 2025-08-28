@@ -24,7 +24,13 @@ jobs:
       - name: Run secret scan
         run: |
           trufflehog filesystem --directory . --json > trufflehog-results.json
-
+      - name: Fail if secrets found
+        run: |
+          if [ -s trufflehog-results.json ]; then
+          echo "❌ Secrets detected!"
+          cat trufflehog-results.json
+          exit 1
+          fi
       # Step 4: Upload results as artifact
       - name: Upload TruffleHog results
         uses: actions/upload-artifact@v4
