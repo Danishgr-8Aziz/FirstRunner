@@ -20,12 +20,14 @@ jobs:
         run: |
             curl -sL https://github.com/trufflesecurity/trufflehog/releases/latest/download/trufflehog_linux_arm64 -o trufflehog
             chmod +x trufflehog
+            file trufflehog
+            ./trufflehog --version
             sudo mv trufflehog /usr/local/bin/
+            pip --version
       # curl -sL https://github.com/trufflesecurity/trufflehog/releases/latest/download/trufflehog_linux_arm64.tar.gz -o trufflehog.tar.gz
           # tar xzf trufflehog.tar.gz
           # sudo mv trufflehog /usr/local/bin/
- 
-
+      
       # Step 3: Run TruffleHog scan across repository
       - name: Run TruffleHog Scan
         run: trufflehog filesystem --directory . --json > trufflehog-results.json
