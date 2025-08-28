@@ -1,0 +1,33 @@
+name: Secret Scanning with TruffleHog
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  trufflehog-scan:
+    runs-on: ubuntu-latest   # GitHub’s own Ubuntu VM
+
+    steps:
+      # Step 1: Checkout repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Install TruffleHog
+      - name: Install TruffleHog
+        run: |
+          pip install trufflehog
+
+      # Step 3: Run TruffleHog on the repository
+      - name: Run secret scan
+        run: |
+          trufflehog filesystem --directory . --json > trufflehog-results.json
+
+      # Step 4: Upload results as artifact
+      - name: Upload TruffleHog results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trufflehog-report
+          path: trufflehog-results.json
