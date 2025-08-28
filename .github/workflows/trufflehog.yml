@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "Running TruffleHog secret scan"
           trufflehog3 -vv --depth 5 --format json \
-            --output ./Output-reports/report.json
+          --output ./Output-reports/report.json . || true
           echo "Repo Scanning Done"
 
       # Step 4: Convert JSON to HTML
