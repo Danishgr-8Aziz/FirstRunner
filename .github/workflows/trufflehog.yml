@@ -18,10 +18,11 @@ jobs:
       # Step 2: Install TruffleHog (latest release)
       - name: Install TruffleHog
         run: |
-            curl -sL https://github.com/trufflesecurity/trufflehog/releases/latest/download/trufflehog_linux_arm64 -o trufflehog
-            chmod +x trufflehog
-            file trufflehog
-            ./trufflehog --version
+            curl -fL https://github.com/trufflesecurity/trufflehog/releases/download/v3.90.5/trufflehog_3.90.5_linux_arm64.tar.gz -o trufflehog.tar.gz
+        # chmod +x trufflehog
+        # file trufflehog
+        # ./trufflehog --version
+            tar xzf trufflehog.tar.gz
             sudo mv trufflehog /usr/local/bin/
             pip --version
       # curl -sL https://github.com/trufflesecurity/trufflehog/releases/latest/download/trufflehog_linux_arm64.tar.gz -o trufflehog.tar.gz
