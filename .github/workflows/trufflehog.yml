@@ -8,50 +8,38 @@ on:
 
 jobs:
   trufflehog-scan:
-    runs-on: ubuntu-latest   # GitHub’s own Ubuntu VM
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository code
+      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # # Step 2: Install TruffleHog
-      # - name: Install TruffleHog
-      #   run: |
-      #     pip install trufflehog
-
-      # # Step 3: Run TruffleHog on the repository
-      # - name: Run secret scan
-      #   run: |
-      #     trufflehog filesystem --directory . --json > trufflehog-results.json
-  
-      - uses: actions/checkout@v4
-
-      - name: Install TruffleHog v3
+      # Step 2: Install TruffleHog (latest release)
+      - name: Install TruffleHog
         run: |
           curl -sL https://github.com/trufflesecurity/trufflehog/releases/latest/download/trufflehog_linux_amd64.tar.gz -o trufflehog.tar.gz
           tar xzf trufflehog.tar.gz
           sudo mv trufflehog /usr/local/bin/
 
+      # Step 3: Run TruffleHog scan across repository
       - name: Run TruffleHog Scan
         run: trufflehog filesystem --directory . --json > trufflehog-results.json
 
+      # Step 4: Upload scan results
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: trufflehog-results
           path: trufflehog-results.json
 
+      # Step 5: Fail workflow if secrets are detected
       - name: Fail if secrets found
         run: |
           if [ -s trufflehog-results.json ]; then
-          echo "❌ Secrets detected!"
-          cat trufflehog-results.json
-          exit 1
+            echo "❌ Secrets detected in repository!"
+            cat trufflehog-results.json
+            exit 1
+          else
+            echo "✅ No secrets found."
           fi
-      # Step 4: Upload results as artifact
-      - name: Upload TruffleHog results
-        uses: actions/upload-artifact@v4
-        with:
-          name: trufflehog-report
-          path: trufflehog-results.json
